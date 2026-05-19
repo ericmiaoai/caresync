@@ -44,6 +44,18 @@ const ROLE_LABEL: Record<string, string> = {
   viewer:       "Viewer",
 };
 
+const ROLE_DESCRIPTION: Record<string, string> = {
+  admin:        "Full control — manages the care team, posts announcements, invites and removes members, and oversees the entire care plan.",
+  collaborator: "Creates and assigns tasks and appointments, scans AVS documents, and can complete any task. Cannot manage team membership or post announcements.",
+  viewer:       "Read-only access — stays informed on tasks, appointments, and updates without making any changes.",
+};
+
+const ROLE_DESCRIPTION_SHORT: Record<string, string> = {
+  admin:        "Full control including team management",
+  collaborator: "Creates and manages tasks & appointments",
+  viewer:       "Read-only access",
+};
+
 function expiresIn(expiresAt: string): string {
   const diff = new Date(expiresAt).getTime() - Date.now();
   if (diff <= 0) return "Expired";
@@ -906,17 +918,29 @@ function SettingsPage() {
                             {name}{isSelf && <span className="ml-1.5 text-xs text-muted-foreground">(you)</span>}
                           </p>
                           {isAdmin && !isSelf ? (
-                            <select
-                              value={m.role}
-                              onChange={(e) => handleUpdateRole(m.id, e.target.value)}
-                              className="mt-0.5 rounded-md border border-border bg-transparent px-1.5 py-0.5 text-xs text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-                            >
-                              <option value="admin">Admin</option>
-                              <option value="collaborator">Caregiver</option>
-                              <option value="viewer">Viewer</option>
-                            </select>
+                            <div>
+                              <select
+                                value={m.role}
+                                onChange={(e) => handleUpdateRole(m.id, e.target.value)}
+                                className="mt-0.5 rounded-md border border-border bg-transparent px-1.5 py-0.5 text-xs text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                              >
+                                <option value="admin">Admin</option>
+                                <option value="collaborator">Caregiver</option>
+                                <option value="viewer">Viewer</option>
+                              </select>
+                              <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground/70">
+                                {ROLE_DESCRIPTION_SHORT[m.role]}
+                              </p>
+                            </div>
                           ) : (
-                            <p className="text-xs text-muted-foreground">{ROLE_LABEL[m.role] ?? m.role}</p>
+                            <div>
+                              <p className="text-xs text-muted-foreground">{ROLE_LABEL[m.role] ?? m.role}</p>
+                              {isSelf && (
+                                <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground/70">
+                                  {ROLE_DESCRIPTION_SHORT[m.role]}
+                                </p>
+                              )}
+                            </div>
                           )}
                         </div>
                         {isAdmin && !isSelf && (
@@ -1043,10 +1067,15 @@ function SettingsPage() {
                   onChange={(e) => setInviteRole(e.target.value)}
                   className={INVITE_INPUT}
                 >
-                  <option value="collaborator">Caregiver — can add, edit, and complete tasks</option>
-                  <option value="viewer">Viewer — read-only access</option>
-                  <option value="admin">Admin — full access including inviting others</option>
+                  <option value="collaborator">Caregiver</option>
+                  <option value="viewer">Viewer</option>
+                  <option value="admin">Admin</option>
                 </select>
+                {inviteRole && (
+                  <p className="rounded-lg bg-accent/60 px-3 py-2 text-xs leading-relaxed text-muted-foreground">
+                    {ROLE_DESCRIPTION[inviteRole]}
+                  </p>
+                )}
               </div>
               <div className="flex flex-col gap-1.5">
                 <label className="text-sm font-medium text-foreground">PIN</label>

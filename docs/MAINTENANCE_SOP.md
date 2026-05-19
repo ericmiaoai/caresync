@@ -526,6 +526,7 @@ CareSync displays two status banners at the top of the screen to keep users info
 | Android major update | Test Scan AVS camera capture + profile photo upload on Android |
 | New Supabase project created | Re-run all SQL files, re-create avatars bucket (Section 4) |
 | New mobile image format needs support | Add MIME type to `PASSTHROUGH_TYPES` in `scan.tsx` and `accept` attribute in `Dropzone.tsx` — only needed for formats Gemini supports natively as inline data |
+| Role descriptions not showing in invite form | Check `ROLE_DESCRIPTION` constant in `src/routes/settings.tsx` — keyed by `admin`, `collaborator`, `viewer` |
 | Member role changes not persisting | Verify `members: admin can update` RLS policy exists (Section 5) |
 | Member names/avatars showing as blank | Verify `profiles: read circle peers` RLS policy exists (Section 5) |
 | Role change not reflecting without refresh | Verify `care_circle_members` is in realtime publication (Section 5) |

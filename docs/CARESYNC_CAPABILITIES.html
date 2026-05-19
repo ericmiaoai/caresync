@@ -363,24 +363,26 @@
   — a secure, bounded workspace shared by a patient's care team. Data from one
   circle is never visible to members of another. Access is controlled by three
   roles enforced at the database level via PostgreSQL Row Level Security.
+  Each role's description is surfaced in-app — in the invite flow and the
+  member list — so admins always understand what access they are granting.
 </p>
 
 <div class="circle-diagram">
   <div class="circle-row">
     <div class="circle-role admin">
       <div class="circle-role-title">👑 Admin</div>
-      <div class="circle-role-sub">Primary Caregiver</div>
+      <div class="circle-role-sub">Full control — manages team, announcements &amp; care plan</div>
     </div>
   </div>
   <div style="color:#94a3b8;font-size:20px;text-align:center;">↙&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↘</div>
   <div class="circle-row">
     <div class="circle-role collab">
-      <div class="circle-role-title">🤝 Collaborator</div>
-      <div class="circle-role-sub">Co-Caregiver / Family</div>
+      <div class="circle-role-title">🤝 Caregiver</div>
+      <div class="circle-role-sub">Creates &amp; manages tasks, appointments, and scans</div>
     </div>
     <div class="circle-role viewer">
       <div class="circle-role-title">👁 Viewer</div>
-      <div class="circle-role-sub">Extended Family</div>
+      <div class="circle-role-sub">Read-only — stays informed without making changes</div>
     </div>
   </div>
   <div style="color:#94a3b8;font-size:20px;text-align:center;">↓</div>
@@ -396,7 +398,7 @@
   <tr>
     <th>Capability</th>
     <th>Admin</th>
-    <th>Collaborator</th>
+    <th>Caregiver</th>
     <th>Viewer</th>
   </tr>
   <tr>
