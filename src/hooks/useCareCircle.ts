@@ -22,6 +22,7 @@ export interface CareCircleContext {
   role:           CareCircleRole | null;
   isLoading:      boolean;
   refetch:        () => void;
+  renameCircle:   (name: string) => Promise<{ error: string | null }>;
 }
 
 // ---------------------------------------------------------------------------
@@ -113,5 +114,21 @@ export function useCareCircle(userId: string | null | undefined): CareCircleCont
     };
   }, [userId, fetchCareCircle]);
 
-  return { careCircleId, careCircleName, role, isLoading, refetch: fetchCareCircle };
+  const renameCircle = useCallback(async (name: string): Promise<{ error: string | null }> => {
+    if (!careCircleId) return { error: "No care circle found." };
+    // Optimistic update
+    setCareCircleName(name);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error: sbError } = await (supabase.from("care_circles") as any)
+      .update({ name })
+      .eq("id", careCircleId);
+    if (sbError) {
+      // Rollback
+      await fetchCareCircle();
+      return { error: sbError.message };
+    }
+    return { error: null };
+  }, [careCircleId, fetchCareCircle]);
+
+  return { careCircleId, careCircleName, role, isLoading, refetch: fetchCareCircle, renameCircle };
 }

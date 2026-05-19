@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
 import {
-  Check, ChevronRight, Palette, Users, LogOut, Share2, Trash2, KeyRound, Eye, EyeOff, UserCircle, Camera, Heart,
+  Check, ChevronRight, Palette, Users, LogOut, Share2, Trash2, KeyRound, Eye, EyeOff, UserCircle, Camera, Heart, Pencil,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -182,7 +182,7 @@ const INVITE_INPUT = "w-full rounded-lg border border-border bg-card px-3 py-2 t
 
 function SettingsPage() {
   const { user, profile, signOut, updateProfile, refreshProfile } = useAuth();
-  const { careCircleId, careCircleName, role } = useCareCircle(user?.id);
+  const { careCircleId, careCircleName, role, renameCircle } = useCareCircle(user?.id);
   const { theme, setTheme }              = useTheme();
   const { prefs, updatePrefs }           = usePreferences(user?.id);
   const isOnline                         = useOnlineStatus();
@@ -195,6 +195,18 @@ function SettingsPage() {
   const isAdmin           = role === "admin";
   const canEditPatient    = can(role, "manage_patient");
   const patientDisplay: PatientDisplay = prefs.patientDisplay ?? "prominent";
+
+  // Circle rename inline edit
+  const [editingCircleName,  setEditingCircleName]  = useState(false);
+  const [circleNameDraft,    setCircleNameDraft]    = useState("");
+
+  const handleCircleNameSave = async () => {
+    const trimmed = circleNameDraft.trim();
+    setEditingCircleName(false);
+    if (!trimmed || trimmed === careCircleName) return;
+    const { error } = await renameCircle(trimmed);
+    if (error) toast.error("Failed to rename circle", { description: error });
+  };
 
   // Sheet open states
   const [appearanceOpen,    setAppearanceOpen]    = useState(false);
@@ -871,7 +883,33 @@ function SettingsPage() {
           <SheetHeader>
             <SheetTitle>Care Circle</SheetTitle>
             {careCircleName && (
-              <p className="text-xs text-muted-foreground">{careCircleName}</p>
+              isAdmin ? (
+                editingCircleName ? (
+                  <input
+                    autoFocus
+                    value={circleNameDraft}
+                    onChange={(e) => setCircleNameDraft(e.target.value)}
+                    onBlur={handleCircleNameSave}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter")  handleCircleNameSave();
+                      if (e.key === "Escape") setEditingCircleName(false);
+                    }}
+                    maxLength={60}
+                    className="w-full rounded-md border border-ring bg-transparent px-2 py-0.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                  />
+                ) : (
+                  <button
+                    onClick={() => { setCircleNameDraft(careCircleName); setEditingCircleName(true); }}
+                    className="group flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+                    title="Rename care circle"
+                  >
+                    <span>{careCircleName}</span>
+                    <Pencil className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-60" />
+                  </button>
+                )
+              ) : (
+                <p className="text-xs text-muted-foreground">{careCircleName}</p>
+              )
             )}
           </SheetHeader>
 
