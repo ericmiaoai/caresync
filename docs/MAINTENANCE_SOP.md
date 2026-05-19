@@ -171,6 +171,13 @@ USING (bucket_id = 'avatars');
 Each user has exactly one file named after their UUID. Uploading a new
 photo overwrites the previous one automatically (`upsert: true`).
 
+### Care Recipient fields editable by admins
+Admins can edit all patient fields via the edit sheet on My Day or Settings:
+- **Legal first name / last name** — used for AVS identity verification; changing these updates the name checked against scanned documents immediately
+- **Date of birth** — drives the age display on the My Day hero card
+- **Preferred name** — display name shown throughout the app; leave blank to fall back to the legal name
+- **Relationship, About, Photo** — display-only fields with no functional impact
+
 ### Photo upload flow
 Users tap their avatar circle in Settings to upload a new photo. The app:
 1. Validates the file (rejects HEIC on desktop, rejects files over 15 MB)

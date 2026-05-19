@@ -39,6 +39,9 @@ interface PatientEditSheetProps {
 export function PatientEditSheet({
   open, onOpenChange, patient, isOnline = true, onSave, onUploadPhoto,
 }: PatientEditSheetProps) {
+  const [firstName,     setFirstName]     = useState("");
+  const [lastName,      setLastName]      = useState("");
+  const [dateOfBirth,   setDateOfBirth]   = useState("");
   const [preferredName, setPreferredName] = useState("");
   const [relationship,  setRelationship]  = useState("");
   const [about,         setAbout]         = useState("");
@@ -53,8 +56,11 @@ export function PatientEditSheet({
   // Reset form whenever the sheet opens
   useEffect(() => {
     if (open) {
+      setFirstName(patient.first_name         ?? "");
+      setLastName(patient.last_name           ?? "");
+      setDateOfBirth(patient.date_of_birth    ?? "");
       setPreferredName(patient.preferred_name ?? "");
-      setRelationship(patient.relationship   ?? "");
+      setRelationship(patient.relationship    ?? "");
       setAbout(patient.about                  ?? "");
       // Clear any stale photo preview
       if (pendingPreview) URL.revokeObjectURL(pendingPreview);
@@ -115,9 +121,13 @@ export function PatientEditSheet({
 
   const handleSave = async () => {
     if (!isOnline) { toast.error("You're offline — reconnect to make changes."); return; }
-    if (about.length > ABOUT_MAX) return;  // safety net; UI prevents this
+    if (!firstName.trim() || !lastName.trim()) return;  // legal name required
+    if (about.length > ABOUT_MAX) return;
     setSubmitting(true);
     const { error } = await onSave({
+      firstName:     firstName.trim(),
+      lastName:      lastName.trim(),
+      dateOfBirth:   dateOfBirth || null,
       preferredName: preferredName.trim() || null,
       relationship:  relationship.trim()  || null,
       about:         about.trim()         || null,
@@ -191,6 +201,60 @@ export function PatientEditSheet({
             </div>
           </div>
 
+          {/* ── Legal information ── */}
+          <div className="flex flex-col gap-3">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Legal Information
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium text-foreground">First name</label>
+                <input
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="First"
+                  maxLength={60}
+                  className={INPUT}
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium text-foreground">Last name</label>
+                <input
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="Last"
+                  maxLength={60}
+                  className={INPUT}
+                />
+              </div>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-foreground">
+                Date of birth
+                <span className="ml-1.5 text-xs font-normal text-muted-foreground">(optional)</span>
+              </label>
+              <input
+                type="date"
+                value={dateOfBirth}
+                onChange={(e) => setDateOfBirth(e.target.value)}
+                className={INPUT}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground/70">
+              Legal name is used to verify identity when scanning AVS documents.
+            </p>
+          </div>
+
+          <div className="border-t border-border" />
+
+          {/* ── Display information ── */}
+          <div className="flex flex-col gap-3">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Display
+            </p>
+
           {/* Preferred name */}
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-foreground">
@@ -201,7 +265,7 @@ export function PatientEditSheet({
               type="text"
               value={preferredName}
               onChange={(e) => setPreferredName(e.target.value)}
-              placeholder={`e.g. ${patient.first_name}, Dad, Grandma`}
+              placeholder={`e.g. ${firstName || patient.first_name}, Dad, Grandma`}
               maxLength={40}
               className={INPUT}
             />
@@ -252,11 +316,12 @@ export function PatientEditSheet({
               Keep this personal and non-medical. Allergies, conditions, and medications belong in tasks — not here.
             </p>
           </div>
+          </div>{/* end Display section */}
         </div>
 
         <SheetFooter className="mt-6">
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={handleSave} disabled={submitting || aboutOver}>
+          <Button onClick={handleSave} disabled={submitting || aboutOver || !firstName.trim() || !lastName.trim()}>
             {submitting ? "Saving…" : "Save Changes"}
           </Button>
         </SheetFooter>

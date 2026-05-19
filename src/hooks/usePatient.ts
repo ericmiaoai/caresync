@@ -16,6 +16,9 @@ import { useReportLoading } from "@/lib/routeReadiness";
 import type { Patient } from "@/lib/database.types";
 
 export interface PatientUpdate {
+  firstName?:     string | null;
+  lastName?:      string | null;
+  dateOfBirth?:   string | null;
   preferredName?: string | null;
   relationship?:  string | null;
   about?:         string | null;
@@ -122,6 +125,9 @@ export function usePatient(careCircleId: string | null | undefined): UsePatientR
     if (!patient) return { error: "No patient record found for this care circle." };
 
     const dbPatch: Record<string, string | null> = {};
+    if (patch.firstName     !== undefined) dbPatch.first_name     = patch.firstName;
+    if (patch.lastName      !== undefined) dbPatch.last_name      = patch.lastName;
+    if (patch.dateOfBirth   !== undefined) dbPatch.date_of_birth  = patch.dateOfBirth;
     if (patch.preferredName !== undefined) dbPatch.preferred_name = patch.preferredName;
     if (patch.relationship  !== undefined) dbPatch.relationship   = patch.relationship;
     if (patch.about         !== undefined) dbPatch.about          = patch.about;
