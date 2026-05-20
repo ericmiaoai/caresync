@@ -175,9 +175,9 @@ function Disclaimer() {
  */
 function DeferredRouteContent({ path }: { path: string }) {
   const isLoading = useAnyHookLoading();
-  // Local "revealed" flag: false during the brief load window, then true.
-  // Reset on every route change so subsequent navigations re-defer.
-  const [revealed, setRevealed] = useState(!isLoading);
+  // Always start hidden. Effects control the reveal once data is ready.
+  // This prevents a single-frame flash of unloaded content on mount.
+  const [revealed, setRevealed] = useState(false);
   const prevPathRef = useRef(path);
 
   // On route change: reset to hidden until either loading clears or the
@@ -335,7 +335,7 @@ function RootComponent() {
           <OfflineBanner />
           <SyncErrorBanner />
           <div className="flex-1 overflow-y-auto">
-            <DeferredRouteContent path={currentPath} />
+            <DeferredRouteContent key={user?.id ?? "anon"} path={currentPath} />
           </div>
         </div>
         <BottomTabBar />
