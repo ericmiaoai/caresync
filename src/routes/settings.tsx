@@ -578,7 +578,8 @@ function SettingsPage() {
           <p className="mb-1.5 px-1 text-sm font-semibold uppercase tracking-wider" style={{ color: "oklch(0.62 0.13 74)" }}>
             Care Recipient
           </p>
-          <div className="mb-6 overflow-hidden rounded-xl border border-border bg-card">
+          <div className="mb-6 overflow-hidden rounded-xl border border-border bg-card divide-y divide-border">
+            {/* Patient identity row — admin-only edit */}
             <button
               type="button"
               onClick={() => canEditPatient && setPatientEditOpen(true)}
@@ -611,6 +612,14 @@ function SettingsPage() {
                 <ChevronRight className="h-4 w-4 shrink-0" style={{ color: "oklch(0.62 0.13 74)" }} />
               )}
             </button>
+
+            {/* Display preference row — available to all roles */}
+            <SettingsRow
+              icon={<Heart className="h-4 w-4" />}
+              label="Display preference"
+              subtitle={PATIENT_DISPLAY_LABEL[patientDisplay]}
+              onClick={() => setDisplayPrefsOpen(true)}
+            />
           </div>
         </>
       )}
@@ -639,14 +648,6 @@ function SettingsPage() {
           subtitle={`${THEMES.length} themes`}
           onClick={() => setAppearanceOpen(true)}
         />
-        {patient && (
-          <SettingsRow
-            icon={<Heart className="h-4 w-4" />}
-            label="Care Recipient display"
-            subtitle={PATIENT_DISPLAY_LABEL[patientDisplay]}
-            onClick={() => setDisplayPrefsOpen(true)}
-          />
-        )}
       </div>
 
       {/* Account section — floating label */}
