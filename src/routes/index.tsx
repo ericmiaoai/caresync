@@ -273,11 +273,11 @@ function AppointmentCard({ event, onEdit, onDelete, onComplete }: AppointmentCar
       data-kind="appointment"
       style={{ boxShadow: "var(--card-shadow)" }}
     >
-      <div className="flex w-24 shrink-0 flex-col items-end justify-center border-r border-border py-3 px-3">
+      <div className="flex w-20 shrink-0 flex-col items-end justify-center border-r border-border py-3 px-2 sm:w-24 sm:px-3">
         <span className="whitespace-nowrap text-sm font-semibold tabular-nums">{event.time}</span>
       </div>
 
-      <div className="flex flex-1 items-center gap-3 py-3 pr-2">
+      <div className="flex min-w-0 flex-1 items-center gap-3 py-3 pr-2">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent">
           <CalendarDays className="h-4 w-4 text-muted-foreground" />
         </div>
@@ -307,7 +307,7 @@ function AppointmentCard({ event, onEdit, onDelete, onComplete }: AppointmentCar
       </div>
 
       {(onEdit || onDelete || onComplete) && (
-        <div className="flex items-center gap-0.5 pr-2">
+        <div className="flex shrink-0 items-center gap-0.5 pr-2">
           {onEdit && (
             <button
               type="button"

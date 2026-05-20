@@ -73,7 +73,7 @@ export function TaskCard({ task, onComplete, onEdit, onDelete, dragHandleProps, 
       </div>
 
       {/* Actions — compact on mobile (36px), full touch-target (44px) on tablet+ */}
-      <div className="flex items-center gap-0 pr-1 sm:gap-0.5 sm:pr-2">
+      <div className="flex shrink-0 items-center gap-0 pr-1 sm:gap-0.5 sm:pr-2">
         {dragHandleProps && (
           <button
             {...dragHandleProps}
