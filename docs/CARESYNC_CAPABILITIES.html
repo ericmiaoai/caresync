@@ -315,7 +315,7 @@
 <div class="cover">
   <div class="cover-logo"></div>
   <div>
-    <h1>CareSync <span class="cover-badge">v1.2</span></h1>
+    <h1>CareSync <span class="cover-badge">v1.7</span></h1>
     <div class="cover-meta">
       Capabilities &amp; Technical Overview &nbsp;·&nbsp;
       CIMA 130 — Introduction to AI &nbsp;·&nbsp; May 2026
@@ -767,11 +767,19 @@
   </tr>
   <tr>
     <td><strong>Care Circle management</strong></td>
-    <td>Invite members via time-limited link + PIN; view member list with avatars; change roles; remove members</td>
+    <td>Invite members via time-limited link + PIN; view member list with avatars; change roles; remove members. Admins can rename the Care Circle inline from the member list header. Each role's description is shown in the invite flow and next to each member's role selector so admins always understand what access they are granting.</td>
   </tr>
   <tr>
     <td><strong>Care Recipient profile</strong></td>
-    <td>Admin-only edit sheet — legal first/last name, date of birth, preferred display name, relationship label, about blurb, and photo. Legal name is used for AVS identity verification; date of birth drives the age display on My Day.</td>
+    <td>Admin-only edit sheet (accessible from the Care Recipient card in Settings) — legal first/last name, date of birth, preferred display name, relationship label, about blurb, and photo. Legal name is used for AVS identity verification; date of birth drives the age display on My Day. Non-admins see an info icon on the row and a toast explaining that editing requires Admin access. Display preference (Prominent / Minimal / Hidden) is accessible to all roles from the same card.</td>
+  </tr>
+  <tr>
+    <td><strong>Forgot Password</strong></td>
+    <td>"Forgot password?" link on the sign-in page opens a modal — enter email, receive a Supabase-sent reset link. Clicking the link lands on the <code>/reset-password</code> page, which verifies the recovery token, presents a new-password form with live complexity checks, and redirects to sign-in on success. Reset links expire after 1 hour.</td>
+  </tr>
+  <tr>
+    <td><strong>Account deletion</strong></td>
+    <td>Available in the Danger Zone of Settings. Requires the user to enter their current password to confirm before the delete button activates, preventing accidental deletion. Sole admins of a circle with other members are blocked until they transfer the Admin role. All data cannot be recovered once deleted.</td>
   </tr>
 </table>
 
@@ -1358,22 +1366,40 @@
     </ul>
   </div>
 
+  <div class="tl-item">
+    <div class="tl-dot green"></div>
+    <div class="tl-date">May 19–20, 2026</div>
+    <div class="tl-phase green">Phase 10 — Account Security, Settings UX &amp; Resilience</div>
+    <div class="tl-title">Forgot Password, Deletion Safeguards, Settings Reorganisation &amp; Navigation Fixes</div>
+    <ul class="tl-list">
+      <li><strong>Forgot Password:</strong> "Forgot password?" link on the login page sends a Supabase reset email; new <code>/reset-password</code> route handles the recovery token and presents a new-password form with live complexity checks</li>
+      <li><strong>Account deletion safeguard:</strong> deletion now requires entering the current password before the confirm button activates; disclaimer updated to state data cannot be recovered once deleted</li>
+      <li><strong>Settings reorganisation:</strong> Care Recipient display preference moved into the Care Recipient card; non-admin users see an info icon and toast explaining that editing requires Admin access</li>
+      <li><strong>Admin Care Circle rename:</strong> admins can rename the Care Circle inline from the Members sheet header — click the name to edit, save on Enter or blur</li>
+      <li><strong>Care Recipient legal fields:</strong> admins can update patient legal first/last name and date of birth from the Care Recipient edit sheet</li>
+      <li><strong>Role descriptions:</strong> full description shown in the invite flow; short description shown below each member's role in the member list</li>
+      <li><strong>Mobile card overflow:</strong> appointment time column narrowed on small screens; action icons no longer pushed off-card by long titles (<code>min-w-0</code> + <code>shrink-0</code> fixes)</li>
+      <li><strong>Mobile AlertDialog fix:</strong> confirmation dialogs (including account deletion) now constrained to viewport height and scrollable on small screens, making the password input reachable</li>
+      <li><strong>Navigation resilience:</strong> route transition system switched to <code>AnimatePresence mode="sync"</code> and safety timer reduced to 400ms — eliminates blank screens when switching tabs quickly; route tree keyed to user identity to prevent stale state after sign-in</li>
+    </ul>
+  </div>
+
 </div>
 
 <div class="callout green">
   <div class="callout-title">Project summary</div>
-  <strong>26 days</strong> from first commit to feature-complete deployment &nbsp;·&nbsp;
-  <strong>40+ commits</strong> across 9 development phases &nbsp;·&nbsp;
+  <strong>30 days</strong> from first commit to latest release &nbsp;·&nbsp;
+  <strong>50+ commits</strong> across 10 development phases &nbsp;·&nbsp;
   <strong>1 live PWA</strong> on Cloudflare Workers + Netlify + Supabase
 </div>
 
 <br/><br/>
 <hr style="border:none;border-top:2px solid #e2e8f0;margin:32px 0 16px;"/>
 <p style="text-align:center;color:#94a3b8;font-size:12px;">
-  CareSync v1.6 &nbsp;·&nbsp; CIMA 130 — Introduction to AI &nbsp;·&nbsp; May 2026<br/>
+  CareSync v1.7 &nbsp;·&nbsp; CIMA 130 — Introduction to AI &nbsp;·&nbsp; May 2026<br/>
   GitHub: <a href="https://github.com/ericmiaoai/caresync">github.com/ericmiaoai/caresync</a>
   &nbsp;·&nbsp;
-  Live: <a href="https://caresync-ericmiao.netlify.app">caresync.*.workers.dev</a>
+  Live: <a href="https://caresync.ericmiao-ai.workers.dev">caresync.ericmiao-ai.workers.dev</a>
 </p>
 
 </body>

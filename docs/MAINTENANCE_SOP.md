@@ -227,6 +227,26 @@ which handles them natively as inline data types.
 > Because the frontend is deployed from a local build, `VITE_` values are
 > baked in from `.env` at build time — not from any cloud dashboard.
 
+### Forgot Password redirect URL (one-time setup per environment)
+The Forgot Password feature emails users a link that redirects to `/reset-password`
+on the live app. Supabase blocks redirects to any URL not explicitly whitelisted.
+
+**Setup steps:**
+1. Go to [Supabase Dashboard](https://supabase.com/dashboard) → your project → **Authentication** → **URL Configuration**
+2. Under **Redirect URLs**, click **Add URL** and enter:
+   ```
+   https://caresync.ericmiao-ai.workers.dev/reset-password
+   ```
+3. Save
+
+If a custom domain is added later, add that URL to the list as well.
+Local development works automatically — Supabase allows `http://localhost:*` by default.
+
+> **Why this is required:** Supabase validates the `redirectTo` parameter in
+> `resetPasswordForEmail` against this allowlist. An unlisted URL causes the
+> email link to silently fail, landing the user on a Supabase error page instead
+> of the in-app reset form.
+
 ### Supabase project URL/key change
 If the Supabase project is migrated or recreated, update `.env` locally,
 rebuild (`npm run build`), and redeploy (`npx wrangler deploy`). Also update
@@ -534,6 +554,10 @@ CareSync displays two status banners at the top of the screen to keep users info
 | New Supabase project created | Re-run all SQL files, re-create avatars bucket (Section 4) |
 | New mobile image format needs support | Add MIME type to `PASSTHROUGH_TYPES` in `scan.tsx` and `accept` attribute in `Dropzone.tsx` — only needed for formats Gemini supports natively as inline data |
 | Role descriptions not showing in invite form | Check `ROLE_DESCRIPTION` constant in `src/routes/settings.tsx` — keyed by `admin`, `collaborator`, `viewer` |
+| Password reset link in email opens a Supabase error page instead of the app | The `/reset-password` redirect URL is not whitelisted — add it in Supabase → Authentication → URL Configuration (see Section 5) |
+| "Forgot password?" sends email but reset form never becomes active | Supabase `detectSessionInUrl` is not processing the token — verify the page URL contains `?code=...` or `#access_token=...&type=recovery`; check browser console for auth errors |
+| Account deletion confirmation button stays greyed out | Expected — user must enter their current password in the confirmation dialog before the button activates |
+| Blank screen briefly appears when switching tabs quickly | Expected — `DeferredRouteContent` hides content while data hooks load; resolves within 400ms via safety timer. If persistent, check console for a hook stuck in `isLoading: true` |
 | Member role changes not persisting | Verify `members: admin can update` RLS policy exists (Section 5) |
 | Member names/avatars showing as blank | Verify `profiles: read circle peers` RLS policy exists (Section 5) |
 | Role change not reflecting without refresh | Verify `care_circle_members` is in realtime publication (Section 5) |
@@ -541,6 +565,7 @@ CareSync displays two status banners at the top of the screen to keep users info
 | A route shows an error fallback instead of crashing | Expected behaviour — `AppErrorBoundary` caught a render crash. Check the browser console for the error message logged by the boundary. Fix the underlying component issue and redeploy. |
 | Error boundary fallback appears on every page load | A persistent render crash — likely a bad data shape from Supabase. Check the console error, inspect the relevant hook/query, and verify the data contract matches `database.types.ts`. |
 | Tab transitions feel jaggy / brief loading state visible | Likely a new data hook isn't reporting to the route-readiness store, or a new route isn't wired into prefetch. See **Section 11 — Performance Patterns**. |
+| Stale data or wrong-user content appears immediately after signing back in | `DeferredRouteContent` is keyed to `user?.id` — it remounts completely on sign-in, so this should not occur. If it persists, verify `useAuth` returns the correct user ID before the root component renders. |
 
 ---
 
@@ -666,4 +691,4 @@ Whenever you create a hook that fetches Supabase data on mount (mirroring `useTa
 
 ---
 
-*Last updated: May 18, 2026 — CareSync v1.6 (additions: HEIC/HEIF/PDF scan support, VITE_AVS_DAILY_SCAN_LIMIT display variable, netlify.env bulk import tip, Netlify account updated to caresync-ericmiao3, Granite default theme for new users)*
+*Last updated: May 20, 2026 — CareSync v1.7 (additions: Forgot Password feature + Supabase redirect URL setup, password confirmation before account deletion, Care Recipient card reorganization, admin inline Care Circle rename, role descriptions in invite/member UI, mobile card overflow fixes, navigation resilience improvements)*
