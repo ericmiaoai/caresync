@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
 import {
-  Check, ChevronRight, Palette, Users, LogOut, Share2, Trash2, KeyRound, Eye, EyeOff, UserCircle, Camera, Heart, Pencil,
+  Check, ChevronRight, Palette, Users, LogOut, Share2, Trash2, KeyRound, Eye, EyeOff, UserCircle, Camera, Heart, Pencil, Info,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -218,6 +218,8 @@ function SettingsPage() {
   const [deleteOpen,         setDeleteOpen]         = useState(false);
   const [deleteLoading,      setDeleteLoading]      = useState(false);
   const [blockingCircles,    setBlockingCircles]    = useState<string[] | null>(null);
+  const [deletePassword,     setDeletePassword]     = useState("");
+  const [showDeletePassword, setShowDeletePassword] = useState(false);
 
   function formatCircleList(names: string[]): string {
     if (names.length === 0) return "a Care Circle";
@@ -228,8 +230,20 @@ function SettingsPage() {
   }
 
   async function handleDeleteAccount() {
+    if (!user?.email || !deletePassword) return;
     setDeleteLoading(true);
     setBlockingCircles(null);
+
+    // Verify the user's password before proceeding with deletion
+    const { error: authErr } = await supabase.auth.signInWithPassword({
+      email: user.email, password: deletePassword,
+    });
+    if (authErr) {
+      toast.error("Incorrect password — please try again.");
+      setDeleteLoading(false);
+      return;
+    }
+
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
@@ -579,15 +593,14 @@ function SettingsPage() {
             Care Recipient
           </p>
           <div className="mb-6 overflow-hidden rounded-xl border border-border bg-card divide-y divide-border">
-            {/* Patient identity row — admin-only edit */}
+            {/* Patient identity row — admin-only edit; info toast for other roles */}
             <button
               type="button"
-              onClick={() => canEditPatient && setPatientEditOpen(true)}
-              disabled={!canEditPatient}
-              className={cn(
-                "flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors",
-                canEditPatient ? "hover:bg-accent/50 active:bg-accent cursor-pointer" : "cursor-default",
-              )}
+              onClick={() => {
+                if (canEditPatient) setPatientEditOpen(true);
+                else toast.info("Only Admins can edit Care Recipient details.");
+              }}
+              className="flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-accent/50 active:bg-accent"
             >
               {patient.avatar_url ? (
                 <img
@@ -608,9 +621,10 @@ function SettingsPage() {
                   {patient.relationship?.trim() || (canEditPatient ? "Tap to add photo and details" : "—")}
                 </span>
               </div>
-              {canEditPatient && (
-                <ChevronRight className="h-4 w-4 shrink-0" style={{ color: "oklch(0.62 0.13 74)" }} />
-              )}
+              {canEditPatient
+                ? <ChevronRight className="h-4 w-4 shrink-0" style={{ color: "oklch(0.62 0.13 74)" }} />
+                : <Info className="h-4 w-4 shrink-0 text-muted-foreground/60" />
+              }
             </button>
 
             {/* Display preference row — available to all roles */}
@@ -697,7 +711,11 @@ function SettingsPage() {
         open={deleteOpen}
         onOpenChange={(o) => {
           setDeleteOpen(o);
-          if (!o) setBlockingCircles(null);  // reset on close
+          if (!o) {
+            setBlockingCircles(null);
+            setDeletePassword("");
+            setShowDeletePassword(false);
+          }
         }}
       >
         <AlertDialogContent>
@@ -733,14 +751,39 @@ function SettingsPage() {
                 <AlertDialogDescription>
                   This permanently deletes your account and removes you from all Care
                   Circles. Tasks you were assigned to will remain but become unassigned.
-                  This action cannot be undone.
+                  This action cannot be undone — your account and all associated data
+                  cannot be recovered once deleted.
                 </AlertDialogDescription>
               </AlertDialogHeader>
+              {/* Password confirmation */}
+              <div className="flex flex-col gap-1.5 py-2">
+                <label className="text-sm font-medium text-foreground">
+                  Enter your password to confirm
+                </label>
+                <div className="relative">
+                  <input
+                    type={showDeletePassword ? "text" : "password"}
+                    value={deletePassword}
+                    onChange={(e) => setDeletePassword(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter" && deletePassword && !deleteLoading) handleDeleteAccount(); }}
+                    placeholder="Your current password"
+                    className={`${INVITE_INPUT} pr-10`}
+                    autoComplete="current-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowDeletePassword((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  >
+                    {showDeletePassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
               <AlertDialogFooter>
                 <AlertDialogCancel disabled={deleteLoading}>Cancel</AlertDialogCancel>
                 <AlertDialogAction
                   onClick={(e) => { e.preventDefault(); handleDeleteAccount(); }}
-                  disabled={deleteLoading}
+                  disabled={deleteLoading || !deletePassword}
                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 >
                   {deleteLoading ? "Deleting…" : "Yes, delete my account"}
