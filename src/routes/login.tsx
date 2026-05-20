@@ -42,6 +42,12 @@ function LoginPage() {
   // Cooldown countdown in seconds (0 = can resend)
   const [resendCooldown, setResendCooldown]   = useState(0);
 
+  // Forgot password state
+  const [forgotMode,    setForgotMode]    = useState(false);
+  const [forgotEmail,   setForgotEmail]   = useState("");
+  const [forgotSent,    setForgotSent]    = useState(false);
+  const [forgotLoading, setForgotLoading] = useState(false);
+
   // Count down the cooldown timer each second
   useEffect(() => {
     if (resendCooldown <= 0) return;
@@ -68,9 +74,24 @@ function LoginPage() {
     }
   }, [unverifiedEmail, resendCooldown]);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>({
+  const { register, handleSubmit, formState: { errors }, watch } = useForm<LoginForm>({
     resolver: zodResolver(LoginSchema),
   });
+
+  const handleForgotPassword = async () => {
+    const email = forgotEmail.trim();
+    if (!email) return;
+    setForgotLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setForgotLoading(false);
+    if (error) {
+      toast.error("Could not send reset email", { description: error.message });
+    } else {
+      setForgotSent(true);
+    }
+  };
 
   const onSubmit = async (data: LoginForm) => {
     setIsLoading(true);
@@ -191,9 +212,21 @@ function LoginPage() {
 
           {/* Password */}
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="login-password" className="text-sm font-medium">
-              Password
-            </label>
+            <div className="flex items-center justify-between">
+              <label htmlFor="login-password" className="text-sm font-medium">
+                Password
+              </label>
+              <button
+                type="button"
+                onClick={() => {
+                  setForgotEmail(watch("email") ?? "");
+                  setForgotMode(true);
+                }}
+                className="text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+              >
+                Forgot password?
+              </button>
+            </div>
             <input
               id="login-password"
               type="password"
@@ -218,6 +251,63 @@ function LoginPage() {
             {isLoading ? "Signing in…" : "Sign in"}
           </button>
         </form>
+
+        {/* ── Forgot password sheet ── */}
+        {forgotMode && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+            <div className="w-full max-w-xs rounded-2xl border border-border bg-card p-6 shadow-2xl">
+              {forgotSent ? (
+                <>
+                  <h2 className="mb-1 text-base font-semibold text-foreground">Check your inbox</h2>
+                  <p className="mb-5 text-sm text-muted-foreground">
+                    We sent a password reset link to <span className="font-medium text-foreground">{forgotEmail}</span>.
+                    The link expires in 1 hour.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => { setForgotMode(false); setForgotSent(false); setForgotEmail(""); }}
+                    className="w-full rounded-xl bg-foreground py-2.5 text-sm font-medium text-background transition-opacity hover:opacity-80"
+                  >
+                    Back to sign in
+                  </button>
+                </>
+              ) : (
+                <>
+                  <h2 className="mb-1 text-base font-semibold text-foreground">Reset your password</h2>
+                  <p className="mb-4 text-sm text-muted-foreground">
+                    Enter your account email and we'll send you a reset link.
+                  </p>
+                  <input
+                    type="email"
+                    autoFocus
+                    value={forgotEmail}
+                    onChange={(e) => setForgotEmail(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") handleForgotPassword(); }}
+                    placeholder="you@example.com"
+                    className="mb-4 w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring"
+                  />
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => { setForgotMode(false); setForgotEmail(""); }}
+                      className="flex-1 rounded-xl border border-border py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleForgotPassword}
+                      disabled={!forgotEmail.trim() || forgotLoading}
+                      className="flex-1 rounded-xl bg-foreground py-2.5 text-sm font-medium text-background transition-opacity hover:opacity-80 disabled:opacity-50"
+                    >
+                      {forgotLoading ? "Sending…" : "Send link"}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Footer link */}
         <p className="mt-6 text-center text-sm text-muted-foreground">

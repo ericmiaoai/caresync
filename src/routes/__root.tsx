@@ -25,9 +25,9 @@ import {
 import appCss from "../styles.css?url";
 
 // Routes that bypass the auth guard (no login required)
-const PUBLIC_ROUTES = ["/login", "/register", "/join"];
+const PUBLIC_ROUTES = ["/login", "/register", "/join", "/reset-password"];
 // Routes that require auth but NOT a care circle yet
-const SHELL_FREE_ROUTES = ["/login", "/register", "/onboarding", "/join"];
+const SHELL_FREE_ROUTES = ["/login", "/register", "/onboarding", "/join", "/reset-password"];
 
 function NotFoundComponent() {
   return (
