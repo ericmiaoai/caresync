@@ -199,17 +199,21 @@ function DeferredRouteContent({ path }: { path: string }) {
     }
   }, [revealed, isLoading]);
 
-  // Safety: never leave the screen hidden indefinitely. 800ms is generous
-  // — most navigations resolve in 100–400ms. If a hook is genuinely stuck,
-  // the route should still appear (with its own skeleton/loading UI).
+  // Safety: never leave the screen hidden indefinitely. If a hook is genuinely
+  // stuck loading, force-reveal after 400ms so the route's own skeleton UI shows.
+  // Note: this timer depends on `path` so it resets on each navigation; 400ms
+  // is short enough that even rapid multi-tab switching still recovers quickly.
   useEffect(() => {
     if (revealed) return;
-    const t = setTimeout(() => setRevealed(true), 800);
+    const t = setTimeout(() => setRevealed(true), 400);
     return () => clearTimeout(t);
   }, [revealed, path]);
 
   return (
-    <AnimatePresence mode="wait" initial={false}>
+    // mode="sync" lets old and new routes animate simultaneously instead of
+    // waiting for the exit to complete before mounting the new route.
+    // This prevents blank-screen gaps when the user switches tabs quickly.
+    <AnimatePresence mode="sync" initial={false}>
       <motion.div
         key={path}
         initial={{ opacity: 0 }}
