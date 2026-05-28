@@ -14,6 +14,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ScanRouteImport } from './routes/scan'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as JoinRouteImport } from './routes/join'
@@ -43,6 +44,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OnboardingRoute = OnboardingRouteImport.update({
@@ -77,6 +83,7 @@ export interface FileRoutesByFullPath {
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
+  '/privacy': typeof PrivacyRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/scan': typeof ScanRoute
@@ -89,6 +96,7 @@ export interface FileRoutesByTo {
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
+  '/privacy': typeof PrivacyRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/scan': typeof ScanRoute
@@ -102,6 +110,7 @@ export interface FileRoutesById {
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
+  '/privacy': typeof PrivacyRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/scan': typeof ScanRoute
@@ -116,6 +125,7 @@ export interface FileRouteTypes {
     | '/join'
     | '/login'
     | '/onboarding'
+    | '/privacy'
     | '/register'
     | '/reset-password'
     | '/scan'
@@ -128,6 +138,7 @@ export interface FileRouteTypes {
     | '/join'
     | '/login'
     | '/onboarding'
+    | '/privacy'
     | '/register'
     | '/reset-password'
     | '/scan'
@@ -140,6 +151,7 @@ export interface FileRouteTypes {
     | '/join'
     | '/login'
     | '/onboarding'
+    | '/privacy'
     | '/register'
     | '/reset-password'
     | '/scan'
@@ -153,6 +165,7 @@ export interface RootRouteChildren {
   JoinRoute: typeof JoinRoute
   LoginRoute: typeof LoginRoute
   OnboardingRoute: typeof OnboardingRoute
+  PrivacyRoute: typeof PrivacyRoute
   RegisterRoute: typeof RegisterRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ScanRoute: typeof ScanRoute
@@ -195,6 +208,13 @@ declare module '@tanstack/react-router' {
       path: '/register'
       fullPath: '/register'
       preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/onboarding': {
@@ -241,6 +261,7 @@ const rootRouteChildren: RootRouteChildren = {
   JoinRoute: JoinRoute,
   LoginRoute: LoginRoute,
   OnboardingRoute: OnboardingRoute,
+  PrivacyRoute: PrivacyRoute,
   RegisterRoute: RegisterRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ScanRoute: ScanRoute,

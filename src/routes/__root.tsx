@@ -25,9 +25,9 @@ import {
 import appCss from "../styles.css?url";
 
 // Routes that bypass the auth guard (no login required)
-const PUBLIC_ROUTES = ["/login", "/register", "/join", "/reset-password"];
+const PUBLIC_ROUTES = ["/login", "/register", "/join", "/reset-password", "/privacy"];
 // Routes that require auth but NOT a care circle yet
-const SHELL_FREE_ROUTES = ["/login", "/register", "/onboarding", "/join", "/reset-password"];
+const SHELL_FREE_ROUTES = ["/login", "/register", "/onboarding", "/join", "/reset-password", "/privacy"];
 
 function NotFoundComponent() {
   return (
@@ -149,10 +149,18 @@ function AppHeader() {
 
 function Disclaimer() {
   return (
-    <p className="px-4 py-3 text-center text-[11px] leading-relaxed text-muted-foreground/80">
-      CareSync is an administrative organizational tool, not a substitute for professional medical
-      advice.
-    </p>
+    <div className="flex flex-col items-center gap-1 px-4 py-3 text-center">
+      <p className="text-[11px] leading-relaxed text-muted-foreground/80">
+        CareSync is an administrative organizational tool, not a substitute for professional medical
+        advice.
+      </p>
+      <Link
+        to="/privacy"
+        className="text-[11px] text-muted-foreground/70 underline-offset-2 hover:text-foreground hover:underline"
+      >
+        Privacy Policy
+      </Link>
+    </div>
   );
 }
 

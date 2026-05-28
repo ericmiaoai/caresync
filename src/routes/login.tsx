@@ -321,6 +321,11 @@ function LoginPage() {
         <p className="mt-8 text-center text-[11px] leading-relaxed text-muted-foreground/70">
           CareSync is an organizational tool, not a substitute for professional medical advice.
         </p>
+        <p className="mt-2 text-center text-[11px] text-muted-foreground/70">
+          <Link to="/privacy" className="underline-offset-2 hover:text-foreground hover:underline">
+            Privacy Policy
+          </Link>
+        </p>
       </div>
     </div>
   );

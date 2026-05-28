@@ -203,6 +203,15 @@ function RegisterPage() {
             Sign in
           </Link>
         </p>
+
+        {/* Privacy + acceptance disclaimer */}
+        <p className="mt-6 text-center text-[11px] leading-relaxed text-muted-foreground/70">
+          By creating an account, you accept the terms of CareSync's{" "}
+          <Link to="/privacy" className="underline-offset-2 hover:text-foreground hover:underline">
+            Privacy Policy
+          </Link>
+          .
+        </p>
       </div>
     </div>
   );

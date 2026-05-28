@@ -566,6 +566,10 @@ CareSync displays two status banners at the top of the screen to keep users info
 | Error boundary fallback appears on every page load | A persistent render crash — likely a bad data shape from Supabase. Check the console error, inspect the relevant hook/query, and verify the data contract matches `database.types.ts`. |
 | Tab transitions feel jaggy / brief loading state visible | Likely a new data hook isn't reporting to the route-readiness store, or a new route isn't wired into prefetch. See **Section 11 — Performance Patterns**. |
 | Stale data or wrong-user content appears immediately after signing back in | `DeferredRouteContent` is keyed to `user?.id` — it remounts completely on sign-in, so this should not occur. If it persists, verify `useAuth` returns the correct user ID before the root component renders. |
+| A new third-party processor is added to the stack (e.g., new analytics, error logging, AI provider migration) | Update **Section 4 — Third-party service providers** of `src/routes/privacy.tsx` AND bump the "Effective" date at the top. See **Section 12 — Privacy Policy Maintenance**. |
+| Netlify-to-Cloudflare-Workers migration of `process-avs` is completed | Remove the Netlify mention from `src/routes/privacy.tsx` Section 4 and bump the effective date. See **Section 12 — Privacy Policy Maintenance**. |
+| AI provider is swapped (Gemini → Vertex AI / Groq / other) | Update `src/routes/privacy.tsx` Sections 4 and 5 with the new provider name and data-handling characteristics; bump the effective date. See **Section 12 — Privacy Policy Maintenance**. |
+| A new free-text or media field is added to the database schema | Confirm whether the new field could plausibly contain health-related information. If yes, the field should be covered by Section 3 of `src/routes/privacy.tsx` — no edit needed unless the disclosure language no longer applies. |
 
 ---
 
@@ -691,4 +695,57 @@ Whenever you create a hook that fetches Supabase data on mount (mirroring `useTa
 
 ---
 
-*Last updated: May 20, 2026 — CareSync v1.7 (additions: Forgot Password feature + Supabase redirect URL setup, password confirmation before account deletion, Care Recipient card reorganization, admin inline Care Circle rename, role descriptions in invite/member UI, mobile card overflow fixes, navigation resilience improvements)*
+## 12. Privacy Policy Maintenance
+
+CareSync ships a self-hosted Privacy Policy at `/privacy`. It is a public, shell-free route reachable from the login footer, register footer, and the in-app disclaimer at the bottom of every authenticated page. The policy is the contractual front line that frames CareSync as a **general-purpose task management application** (not a HIPAA-covered entity) and explicitly shifts responsibility for sensitive content to the user.
+
+### Where it lives
+
+| File | Purpose |
+|---|---|
+| `src/routes/privacy.tsx` | The full policy content + a back-link that adapts to auth state (`useAuth`) — signed-in users see "← Back to app", anonymous visitors see "← Back to sign in" |
+| `src/routes/__root.tsx` | `/privacy` is registered in `PUBLIC_ROUTES` and `SHELL_FREE_ROUTES`; the `Disclaimer` component renders the in-app entry link |
+| `src/routes/login.tsx` | Footer Privacy Policy link |
+| `src/routes/register.tsx` | "By creating an account, you accept the terms of CareSync's Privacy Policy" |
+| `src/routeTree.gen.ts` | `/privacy` registered in all 8 required positions (auto-regenerates on `npm run build`, but the route file is the source of truth) |
+
+### When to update
+
+The policy is **not** living documentation — it is a legally meaningful statement and must only be edited deliberately. Update it whenever any of the following change:
+
+1. **A new third-party service provider is introduced** (e.g., adding Sentry for error logging, an analytics tool, or a new AI service) — add it to **Section 4 — Third-party service providers**.
+2. **An existing provider is removed** (e.g., once the Netlify → Cloudflare Workers migration of `process-avs` completes) — remove the corresponding line and the parenthetical transition note.
+3. **The AI provider is swapped** (e.g., AI Studio → Vertex AI → Groq) — update **Section 4** AND **Section 5 — AI document scanning** to reflect the new processor's data-handling characteristics.
+4. **A new database column or feature collects a new category of personal data** — add a row to the table in **Section 1 — Information we collect**.
+5. **The Supabase backup retention window changes** (e.g., plan upgrade extends retention) — update **Section 6 — How long we keep your data**.
+6. **A new free-text or media field is added** that could contain health-related content — verify **Section 3 — Health-related content in free-text fields** still accurately covers the surface; usually no edit needed unless the disclosure language no longer applies.
+7. **You eventually add a customer support channel / contact email** — restore the dropped "Contact us" section that was deliberately omitted in v1.8 (see commit history for the original draft language).
+
+### How to update
+
+1. Edit `src/routes/privacy.tsx`
+2. **Bump the effective date** at the top of the page (currently `Effective: May 2026`) to the current month and year
+3. For material changes, also add a one-line in-app notice or release note so existing users are made aware
+4. Build and deploy: `npm run build && npx wrangler deploy`
+5. Verify the live policy at `https://caresync.ericmiao-ai.workers.dev/privacy` reflects the change
+6. Commit with a clear message: `docs(privacy): <one-line summary of change>`
+
+### What NOT to do
+
+- **Do not name the Supabase project URL, anon key, or any other secret in the policy.** Naming the vendor (Supabase) is fine — the project URL is already public in the frontend bundle — but the policy must never disclose credentials.
+- **Do not weaken the HIPAA disclaimer.** The framing in Section 8 ("not a HIPAA-covered entity", "not a Business Associate", "general-purpose task management application") is load-bearing legal protection. Any softening of this language must be reviewed deliberately.
+- **Do not add a contact email until customer support capacity exists.** A policy that promises a response within 30 days but has no one staffing the inbox is worse than no contact section. The current policy is defensible because all user rights are exercisable in-app.
+- **Do not add placeholder text** like "TODO" or "to be determined" — the policy is a public contractual statement.
+
+### Files involved
+
+| File | Source of truth |
+|---|---|
+| `src/routes/privacy.tsx` | Yes — edit here |
+| `src/routes/__root.tsx` (Disclaimer component) | Link target; rarely changes |
+| `docs/CARESYNC_CAPABILITIES.html` | Mirror the change in the timeline section so the capabilities doc stays in sync |
+| `docs/MAINTENANCE_SOP.md` (this section) | Update if the maintenance procedure itself changes |
+
+---
+
+*Last updated: May 27, 2026 — CareSync v1.8 (addition: self-hosted Privacy Policy at `/privacy` covering data inventory, third-party processors, AI processing disclosure, retention windows, browser storage, and explicit non-HIPAA framing; auth-aware back-link; entry points from login, register, and in-app footer)*

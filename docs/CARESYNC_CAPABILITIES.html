@@ -315,7 +315,7 @@
 <div class="cover">
   <div class="cover-logo"></div>
   <div>
-    <h1>CareSync <span class="cover-badge">v1.7</span></h1>
+    <h1>CareSync <span class="cover-badge">v1.8</span></h1>
     <div class="cover-meta">
       Capabilities &amp; Technical Overview &nbsp;·&nbsp;
       CIMA 130 — Introduction to AI &nbsp;·&nbsp; May 2026
@@ -780,6 +780,10 @@
   <tr>
     <td><strong>Account deletion</strong></td>
     <td>Available in the Danger Zone of Settings. Requires the user to enter their current password to confirm before the delete button activates, preventing accidental deletion. Sole admins of a circle with other members are blocked until they transfer the Admin role. All data cannot be recovered once deleted.</td>
+  </tr>
+  <tr>
+    <td><strong>Privacy Policy</strong></td>
+    <td>Self-hosted policy at <code>/privacy</code> — public, shell-free, reachable from the login footer, register footer, and the in-app disclaimer at the bottom of every authenticated page. Frames CareSync as a <strong>general-purpose task management application</strong> (not a HIPAA-covered entity, no Business Associate Agreements), names third-party processors (Supabase, Cloudflare Workers, Netlify in transition, Google Gemini), discloses the AI document-scan data flow, defines retention windows (7-day Supabase backup rotation; tasks become unassigned on account deletion), and covers the FTC Health Breach Notification Rule. The back-link adapts to auth state: signed-in users see "← Back to app"; anonymous visitors see "← Back to sign in".</td>
   </tr>
 </table>
 
@@ -1384,19 +1388,34 @@
     </ul>
   </div>
 
+  <div class="tl-item">
+    <div class="tl-dot green"></div>
+    <div class="tl-date">May 27, 2026</div>
+    <div class="tl-phase green">Phase 11 — Privacy Posture &amp; Self-Hosted Policy</div>
+    <div class="tl-title">Privacy Policy, Competitor-Benchmarked Disclosures &amp; Non-HIPAA Framing</div>
+    <ul class="tl-list">
+      <li><strong>Self-hosted Privacy Policy</strong> shipped at <code>/privacy</code> — public, shell-free, indexed in <code>PUBLIC_ROUTES</code> and <code>SHELL_FREE_ROUTES</code>. Policy structure benchmarked against six competitors (CareZone, CaringBridge, Lotsa Helping Hands, Honor, Caring Village, CareLinx, ianacare).</li>
+      <li><strong>10 disclosure sections:</strong> what we collect (categorized data table), care recipient data (CareZone-style responsibility clause), free-text health content (industry-leading transparency — no competitor addresses this), named third-party processors (Supabase, Cloudflare Workers, Netlify with transition note, Google Gemini), AI document scanning (transmission flow + no server-side retention), retention windows (7-day backup rotation + what purges on account deletion), in-app user rights, non-HIPAA framing with FTC Health Breach Notification Rule, no-data-sale pledge, browser localStorage disclosure.</li>
+      <li><strong>Affirmative non-HIPAA stance:</strong> CareSync explicitly positioned as a "general-purpose task and coordination management application" — not a HIPAA-covered entity, not a Business Associate, and not a substitute for professional medical advice. Health-related content in free-text fields is not treated as PHI under HIPAA.</li>
+      <li><strong>Auth-aware navigation:</strong> the privacy page's back-link uses <code>useAuth()</code> to swap between "← Back to app" (authenticated) and "← Back to sign in" (anonymous) — same affordance, contextually correct destination.</li>
+      <li><strong>Entry points wired:</strong> Privacy Policy link added to login footer, register acceptance disclaimer ("By creating an account, you accept…"), and the in-app Disclaimer rendered at the bottom of every authenticated page.</li>
+      <li><strong>Maintenance SOP (Section 12)</strong> added — defines when to update the policy, what to change, and what NOT to do (no Supabase URLs, no weakening of the HIPAA framing, no placeholder text, no contact email without staffed support capacity).</li>
+    </ul>
+  </div>
+
 </div>
 
 <div class="callout green">
   <div class="callout-title">Project summary</div>
-  <strong>30 days</strong> from first commit to latest release &nbsp;·&nbsp;
-  <strong>50+ commits</strong> across 10 development phases &nbsp;·&nbsp;
+  <strong>31 days</strong> from first commit to latest release &nbsp;·&nbsp;
+  <strong>55+ commits</strong> across 11 development phases &nbsp;·&nbsp;
   <strong>1 live PWA</strong> on Cloudflare Workers + Netlify + Supabase
 </div>
 
 <br/><br/>
 <hr style="border:none;border-top:2px solid #e2e8f0;margin:32px 0 16px;"/>
 <p style="text-align:center;color:#94a3b8;font-size:12px;">
-  CareSync v1.7 &nbsp;·&nbsp; CIMA 130 — Introduction to AI &nbsp;·&nbsp; May 2026<br/>
+  CareSync v1.8 &nbsp;·&nbsp; CIMA 130 — Introduction to AI &nbsp;·&nbsp; May 2026<br/>
   GitHub: <a href="https://github.com/ericmiaoai/caresync">github.com/ericmiaoai/caresync</a>
   &nbsp;·&nbsp;
   Live: <a href="https://caresync.ericmiao-ai.workers.dev">caresync.ericmiao-ai.workers.dev</a>
