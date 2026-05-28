@@ -697,16 +697,27 @@ Whenever you create a hook that fetches Supabase data on mount (mirroring `useTa
 
 ## 12. Privacy Policy Maintenance
 
-CareSync ships a self-hosted Privacy Policy at `/privacy`. It is a public, shell-free route reachable from the login footer, register footer, and the in-app disclaimer at the bottom of every authenticated page. The policy is the contractual front line that frames CareSync as a **general-purpose task management application** (not a HIPAA-covered entity) and explicitly shifts responsibility for sensitive content to the user.
+CareSync ships a self-hosted Privacy Policy at `/privacy`. It is a public, shell-free route reachable from four intentional entry points (described below). The policy is the contractual front line that frames CareSync as a **general-purpose task management application** (not a HIPAA-covered entity) and explicitly shifts responsibility for sensitive content to the user.
 
-### Where it lives
+### Entry points (intentional, not on every screen)
+
+Following Apple-style design conventions, the Privacy Policy is NOT surfaced on every authenticated page. It appears in exactly the four places where it is meaningful:
+
+| Entry point | File | Why this location |
+|---|---|---|
+| **Login footer** | `src/routes/login.tsx` | Anonymous visitors need to read the policy before deciding to sign up |
+| **Register acceptance line** | `src/routes/register.tsx` | Captures explicit consent at the moment of account creation |
+| **Settings → About → Privacy Policy** | `src/routes/settings.tsx` | The native pattern — this is where users look for legal info |
+| **Scan AVS bottom caption** | `src/routes/scan.tsx` | Contextual disclosure at the moment a document is sent to an external AI service (Google Gemini) |
+
+The medical-advice disclaimer footer (the "CareSync is an administrative organizational tool…" line) is rendered only on `/` (My Day) and `/scan` (Scan AVS) — see the `DISCLAIMER_ROUTES` constant in `src/routes/__root.tsx`. Other tabs (Calendar, Updates, Settings) render without a footer to keep the UI calm.
+
+### Where the policy lives
 
 | File | Purpose |
 |---|---|
 | `src/routes/privacy.tsx` | The full policy content + a back-link that adapts to auth state (`useAuth`) — signed-in users see "← Back to app", anonymous visitors see "← Back to sign in" |
-| `src/routes/__root.tsx` | `/privacy` is registered in `PUBLIC_ROUTES` and `SHELL_FREE_ROUTES`; the `Disclaimer` component renders the in-app entry link |
-| `src/routes/login.tsx` | Footer Privacy Policy link |
-| `src/routes/register.tsx` | "By creating an account, you accept the terms of CareSync's Privacy Policy" |
+| `src/routes/__root.tsx` | `/privacy` is registered in `PUBLIC_ROUTES` and `SHELL_FREE_ROUTES`; `DISCLAIMER_ROUTES` constant controls which routes render the medical-advice disclaimer footer; layout structured as flex column with `min-h-full` so the footer always sits above the `BottomTabBar` |
 | `src/routeTree.gen.ts` | `/privacy` registered in all 8 required positions (auto-regenerates on `npm run build`, but the route file is the source of truth) |
 
 ### When to update
@@ -742,10 +753,25 @@ The policy is **not** living documentation — it is a legally meaningful statem
 | File | Source of truth |
 |---|---|
 | `src/routes/privacy.tsx` | Yes — edit here |
-| `src/routes/__root.tsx` (Disclaimer component) | Link target; rarely changes |
+| `src/routes/__root.tsx` | `DISCLAIMER_ROUTES` constant controls medical-advice footer scope; layout flex-column with `min-h-full` keeps the footer above the `BottomTabBar` |
+| `src/routes/settings.tsx` | "About" section row — primary discovery point for signed-in users |
+| `src/routes/scan.tsx` | Contextual AI disclosure caption |
+| `src/routes/login.tsx`, `src/routes/register.tsx` | Anonymous + signup entry points |
 | `docs/CARESYNC_CAPABILITIES.html` | Mirror the change in the timeline section so the capabilities doc stays in sync |
 | `docs/MAINTENANCE_SOP.md` (this section) | Update if the maintenance procedure itself changes |
 
+### Layout note — why the medical-advice footer is scoped to two routes
+
+Earlier versions of v1.8 rendered the medical-advice disclaimer footer (and the Privacy Policy link) on every authenticated page via the `Disclaimer` component in `__root.tsx`. Two issues surfaced:
+
+1. **Inconsistent positioning** — the footer rendered immediately below `<main>`, so on short pages (Scan AVS) it floated mid-screen instead of sitting at the bottom, and on tall pages (Updates) it was partially obscured by the fixed `BottomTabBar`.
+2. **Visual clutter** — having a persistent legal link on every screen reads as a website convention, not a native app pattern. Apple's own apps (Health, Notes, Reminders) place legal disclosures in Settings, not in page chrome.
+
+The fix (May 28, 2026):
+- Wrap `<main>` and `<footer>` in a flex column with `min-h-full` and `pb-24 md:pb-12` so the footer always sits above the tab bar, regardless of content length
+- Restrict the footer to `DISCLAIMER_ROUTES = ["/", "/scan"]` — the main landing surface and the AI-processing surface
+- Move the Privacy Policy link out of the global footer into Settings → About (primary) and Scan AVS bottom caption (contextual)
+
 ---
 
-*Last updated: May 27, 2026 — CareSync v1.8 (addition: self-hosted Privacy Policy at `/privacy` covering data inventory, third-party processors, AI processing disclosure, retention windows, browser storage, and explicit non-HIPAA framing; auth-aware back-link; entry points from login, register, and in-app footer)*
+*Last updated: May 28, 2026 — CareSync v1.8.1 (refinement: medical-advice disclaimer footer scoped to `/` and `/scan` via `DISCLAIMER_ROUTES` constant; layout restructured to flex-column with `min-h-full` so the footer sits above the `BottomTabBar`; Privacy Policy link relocated from global footer to Settings → About and Scan AVS contextual caption; login footer and register acceptance line retained as anonymous + signup entry points)*

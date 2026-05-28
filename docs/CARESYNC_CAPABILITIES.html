@@ -315,7 +315,7 @@
 <div class="cover">
   <div class="cover-logo"></div>
   <div>
-    <h1>CareSync <span class="cover-badge">v1.8</span></h1>
+    <h1>CareSync <span class="cover-badge">v1.8.1</span></h1>
     <div class="cover-meta">
       Capabilities &amp; Technical Overview &nbsp;·&nbsp;
       CIMA 130 — Introduction to AI &nbsp;·&nbsp; May 2026
@@ -783,7 +783,7 @@
   </tr>
   <tr>
     <td><strong>Privacy Policy</strong></td>
-    <td>Self-hosted policy at <code>/privacy</code> — public, shell-free, reachable from the login footer, register footer, and the in-app disclaimer at the bottom of every authenticated page. Frames CareSync as a <strong>general-purpose task management application</strong> (not a HIPAA-covered entity, no Business Associate Agreements), names third-party processors (Supabase, Cloudflare Workers, Netlify in transition, Google Gemini), discloses the AI document-scan data flow, defines retention windows (7-day Supabase backup rotation; tasks become unassigned on account deletion), and covers the FTC Health Breach Notification Rule. The back-link adapts to auth state: signed-in users see "← Back to app"; anonymous visitors see "← Back to sign in".</td>
+    <td>Self-hosted policy at <code>/privacy</code> — public, shell-free. Reachable from four intentional entry points: <strong>Settings → About → Privacy Policy</strong> (native discovery pattern), the <strong>Scan AVS</strong> bottom caption ("Documents you scan are processed by Google Gemini"), the <strong>login footer</strong> (anonymous discovery), and the <strong>register acceptance line</strong> (consent at signup). Frames CareSync as a <strong>general-purpose task management application</strong> (not a HIPAA-covered entity, no Business Associate Agreements), names third-party processors (Supabase, Cloudflare Workers, Netlify in transition, Google Gemini), discloses the AI document-scan data flow, defines retention windows (7-day Supabase backup rotation; tasks become unassigned on account deletion), and covers the FTC Health Breach Notification Rule. The back-link adapts to auth state: signed-in users see "← Back to app"; anonymous visitors see "← Back to sign in".</td>
   </tr>
 </table>
 
@@ -1403,11 +1403,25 @@
     </ul>
   </div>
 
+  <div class="tl-item">
+    <div class="tl-dot green"></div>
+    <div class="tl-date">May 28, 2026</div>
+    <div class="tl-phase green">Phase 11.1 — Privacy UX Polish &amp; Footer Layout Fix</div>
+    <div class="tl-title">Apple-Style Disclosure Placement, Scoped Disclaimer &amp; Tab-Bar-Aware Footer</div>
+    <ul class="tl-list">
+      <li><strong>Disclaimer scope reduced:</strong> the "CareSync is an administrative organizational tool…" medical-advice footer now renders only on <code>/</code> (My Day) and <code>/scan</code> (Scan AVS) via a new <code>DISCLAIMER_ROUTES</code> constant in <code>__root.tsx</code>. Calendar, Updates, Settings, and other tabs render without a footer to keep the UI calm — modelled on Apple's pattern of placing legal info in Settings rather than in persistent page chrome.</li>
+      <li><strong>Footer layout fix:</strong> the route content wrapper was restructured to a flex column with <code>min-h-full</code> and <code>pb-24 md:pb-12</code>. The <code>&lt;main&gt;</code> element now uses <code>flex-1</code> so it stretches to fill the scroll area on short pages — pushing the disclaimer footer to sit just above the <code>BottomTabBar</code> regardless of content length. Previously the footer floated mid-screen on Scan AVS and was partially obscured by the tab bar on My Day.</li>
+      <li><strong>Privacy Policy link relocated</strong> from the global Disclaimer footer (where it appeared inconsistently across pages) into two intentional locations: a new <strong>Settings → About</strong> row using the standard Settings row pattern (matching gold uppercase header style and <code>ShieldCheck</code> icon, navigating via <code>useNavigate</code>), and a contextual bottom caption on Scan AVS ("Documents you scan are processed by Google Gemini. Privacy Policy"). The login footer link and register acceptance line are retained as anonymous-discovery and consent entry points.</li>
+      <li><strong>Settings "About" header styled</strong> to match peer section headers (Care Recipient, Care Circle, Preferences, Account): same gold colour (<code>oklch(0.62 0.13 74)</code>), <code>text-sm font-semibold uppercase tracking-wider</code>, <code>rounded-xl border border-border bg-card</code> container — reads as a peer section, not a different kind of label.</li>
+      <li><strong>SOP Section 12 expanded</strong> with the new entry-point table, a layout-rationale note, and updated source-of-truth file list. v1.8.1 captures these refinements without inflating the version line.</li>
+    </ul>
+  </div>
+
 </div>
 
 <div class="callout green">
   <div class="callout-title">Project summary</div>
-  <strong>31 days</strong> from first commit to latest release &nbsp;·&nbsp;
+  <strong>32 days</strong> from first commit to latest release &nbsp;·&nbsp;
   <strong>55+ commits</strong> across 11 development phases &nbsp;·&nbsp;
   <strong>1 live PWA</strong> on Cloudflare Workers + Netlify + Supabase
 </div>
@@ -1415,7 +1429,7 @@
 <br/><br/>
 <hr style="border:none;border-top:2px solid #e2e8f0;margin:32px 0 16px;"/>
 <p style="text-align:center;color:#94a3b8;font-size:12px;">
-  CareSync v1.8 &nbsp;·&nbsp; CIMA 130 — Introduction to AI &nbsp;·&nbsp; May 2026<br/>
+  CareSync v1.8.1 &nbsp;·&nbsp; CIMA 130 — Introduction to AI &nbsp;·&nbsp; May 2026<br/>
   GitHub: <a href="https://github.com/ericmiaoai/caresync">github.com/ericmiaoai/caresync</a>
   &nbsp;·&nbsp;
   Live: <a href="https://caresync.ericmiao-ai.workers.dev">caresync.ericmiao-ai.workers.dev</a>

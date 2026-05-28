@@ -28,6 +28,11 @@ import appCss from "../styles.css?url";
 const PUBLIC_ROUTES = ["/login", "/register", "/join", "/reset-password", "/privacy"];
 // Routes that require auth but NOT a care circle yet
 const SHELL_FREE_ROUTES = ["/login", "/register", "/onboarding", "/join", "/reset-password", "/privacy"];
+// Routes where the bottom medical-advice disclaimer should be rendered.
+// Kept intentionally short — the disclaimer is most meaningful on the main
+// landing surface (My Day) and the AI-processing surface (Scan AVS).
+// Other tabs render without a footer to keep the UI calm.
+const DISCLAIMER_ROUTES = ["/", "/scan"];
 
 function NotFoundComponent() {
   return (
@@ -149,18 +154,10 @@ function AppHeader() {
 
 function Disclaimer() {
   return (
-    <div className="flex flex-col items-center gap-1 px-4 py-3 text-center">
-      <p className="text-[11px] leading-relaxed text-muted-foreground/80">
-        CareSync is an administrative organizational tool, not a substitute for professional medical
-        advice.
-      </p>
-      <Link
-        to="/privacy"
-        className="text-[11px] text-muted-foreground/70 underline-offset-2 hover:text-foreground hover:underline"
-      >
-        Privacy Policy
-      </Link>
-    </div>
+    <p className="px-4 py-3 text-center text-[11px] leading-relaxed text-muted-foreground/80">
+      CareSync is an administrative organizational tool, not a substitute for professional medical
+      advice.
+    </p>
   );
 }
 
@@ -187,6 +184,7 @@ function DeferredRouteContent({ path }: { path: string }) {
   // This prevents a single-frame flash of unloaded content on mount.
   const [revealed, setRevealed] = useState(false);
   const prevPathRef = useRef(path);
+  const showDisclaimer = DISCLAIMER_ROUTES.includes(path);
 
   // On route change: reset to hidden until either loading clears or the
   // safety timeout fires.
@@ -222,22 +220,32 @@ function DeferredRouteContent({ path }: { path: string }) {
     // waiting for the exit to complete before mounting the new route.
     // This prevents blank-screen gaps when the user switches tabs quickly.
     <AnimatePresence mode="sync" initial={false}>
+      {/*
+        Flex column with min-h-full pushes the footer to the bottom of the
+        scroll area on short pages (e.g., Scan AVS) so the disclaimer always
+        sits just above the BottomTabBar instead of floating mid-screen.
+        pb-24 reserves space below for the fixed BottomTabBar on mobile
+        (md:pb-12 because the tab bar is hidden on desktop).
+      */}
       <motion.div
         key={path}
+        className="flex min-h-full flex-col pb-24 md:pb-12"
         initial={{ opacity: 0 }}
         // Soft entry once the new content is ready to be seen
         animate={{ opacity: revealed ? 1 : 0, transition: { duration: 0.18, ease: "easeOut" } }}
         // Fast exit so the brief blank gap before the next route is minimised
         exit={{ opacity: 0, transition: { duration: 0.06, ease: "easeIn" } }}
       >
-        <main className="pb-24 md:pb-12">
+        <main className="flex-1">
           <AppErrorBoundary>
             <Outlet />
           </AppErrorBoundary>
         </main>
-        <footer className="border-t border-border">
-          <Disclaimer />
-        </footer>
+        {showDisclaimer && (
+          <footer className="border-t border-border">
+            <Disclaimer />
+          </footer>
+        )}
       </motion.div>
     </AnimatePresence>
   );

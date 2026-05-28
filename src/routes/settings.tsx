@@ -1,7 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
 import {
-  Check, ChevronRight, Palette, Users, LogOut, Share2, Trash2, KeyRound, Eye, EyeOff, UserCircle, Camera, Heart, Pencil, Info,
+  Check, ChevronRight, Palette, Users, LogOut, Share2, Trash2, KeyRound, Eye, EyeOff, UserCircle, Camera, Heart, Pencil, Info, ShieldCheck,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -181,6 +181,7 @@ const PATIENT_DISPLAY_LABEL: Record<PatientDisplay, string> = {
 const INVITE_INPUT = "w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring";
 
 function SettingsPage() {
+  const navigate                                                  = useNavigate();
   const { user, profile, signOut, updateProfile, refreshProfile } = useAuth();
   const { careCircleId, careCircleName, role, renameCircle } = useCareCircle(user?.id);
   const { theme, setTheme }              = useTheme();
@@ -685,6 +686,18 @@ function SettingsPage() {
           label="Sign Out"
           onClick={signOut}
           destructive
+        />
+      </div>
+
+      {/* About section — floating label */}
+      <p className="mb-1.5 mt-6 px-1 text-sm font-semibold uppercase tracking-wider" style={{ color: "oklch(0.62 0.13 74)" }}>
+        About
+      </p>
+      <div className="overflow-hidden rounded-xl border border-border bg-card">
+        <SettingsRow
+          icon={<ShieldCheck className="h-4 w-4" />}
+          label="Privacy Policy"
+          onClick={() => navigate({ to: "/privacy" })}
         />
       </div>
 

@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect, useCallback } from "react";
 import {
   AlertTriangle, Check, X, CalendarDays, ClipboardList,
@@ -570,6 +570,18 @@ function ScanAVS() {
           </div>
         </>
       )}
+
+      {/* Contextual privacy disclosure — surfaced here because this is where
+          a document is sent to an external AI service (Google Gemini). */}
+      <p className="mt-10 text-center text-[11px] leading-relaxed text-muted-foreground/70">
+        Documents you scan are processed by Google Gemini.{" "}
+        <Link
+          to="/privacy"
+          className="underline-offset-2 hover:text-foreground hover:underline"
+        >
+          Privacy Policy
+        </Link>
+      </p>
     </div>
   );
 }
