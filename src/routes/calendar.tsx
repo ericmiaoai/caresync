@@ -4,7 +4,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import {
   DndContext,
   closestCenter,
-  PointerSensor,
+  MouseSensor,
   TouchSensor,
   useSensor,
   useSensors,
@@ -348,7 +348,11 @@ function SortableTaskItem({
         transform:  CSS.Transform.toString(transform),
         transition,
         opacity:    isDragging ? 0.5 : 1,
-        touchAction: "none",
+        // "manipulation" allows the browser to handle scroll and tap on the
+        // card normally; long-press still initiates drag via TouchSensor.
+        // Previously this was "none" which fully blocked vertical scrolling
+        // whenever a finger landed on a card — see SOP Section 9.
+        touchAction: "manipulation",
       }}
     >
       <TaskDayCard
@@ -426,9 +430,15 @@ function CalendarView() {
   const isOnline  = useOnlineStatus();
 
   // ── Drag-and-drop sensors (mouse + touch) ───────────────────────────────
+  // MouseSensor (not PointerSensor) so mobile touch events flow ONLY through
+  // TouchSensor's long-press path — otherwise the pointer events that modern
+  // mobile browsers fire alongside touch get captured at 5px of movement and
+  // block the browser's native vertical scroll on every card. Long-press
+  // 150ms is required on mobile to initiate drag; the page scrolls freely
+  // for any shorter touch interaction.
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(TouchSensor,   { activationConstraint: { delay: 150, tolerance: 5 } }),
+    useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } }),
   );
 
   function navigate(dir: -1 | 1) {

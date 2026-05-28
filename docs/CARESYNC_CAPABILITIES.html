@@ -315,7 +315,7 @@
 <div class="cover">
   <div class="cover-logo"></div>
   <div>
-    <h1>CareSync <span class="cover-badge">v1.8.1</span></h1>
+    <h1>CareSync <span class="cover-badge">v1.8.2</span></h1>
     <div class="cover-meta">
       Capabilities &amp; Technical Overview &nbsp;·&nbsp;
       CIMA 130 — Introduction to AI &nbsp;·&nbsp; May 2026
@@ -1417,6 +1417,20 @@
     </ul>
   </div>
 
+  <div class="tl-item">
+    <div class="tl-dot green"></div>
+    <div class="tl-date">May 28, 2026</div>
+    <div class="tl-phase green">Phase 11.2 — Calendar &amp; My Day Touch-Event Scroll Fix</div>
+    <div class="tl-title">Mobile Vertical Scroll Restored on Task Cards (Two-Part Fix)</div>
+    <ul class="tl-list">
+      <li><strong>Bug:</strong> on mobile, swiping vertically with a finger landing on a task card on the Calendar page would not scroll the screen — every card behaved as a "dead zone." Two layers of <code>@dnd-kit</code> blocking were responsible: (1) <code>PointerSensor</code> activated at 5 px of movement on touch input because modern mobile browsers fire pointer events alongside touch, and (2) the sortable wrapper had <code>touchAction: "none"</code> in its inline style — a CSS-level block that tells the browser to ignore all touch gestures on the element regardless of any JS sensor configuration.</li>
+      <li><strong>Two-part fix:</strong> (1) swapped <code>PointerSensor</code> for <code>MouseSensor</code> in <code>useSensors</code> so touch flows exclusively through <code>TouchSensor</code>'s 150 ms long-press activation; (2) changed the sortable wrapper's <code>touchAction</code> from <code>"none"</code> to <code>"manipulation"</code> so the browser can handle scroll and tap on the card normally while still allowing drag via long-press. The sensor swap alone was necessary but insufficient — the touch-action CSS was the actual scroll blocker.</li>
+      <li><strong>My Day fixed pre-emptively</strong> with the same change in <code>src/routes/index.tsx</code>. The same latent pattern existed there (PointerSensor + <code>touchAction: "none"</code> on the task wrapper) but did not manifest in practice — likely because My Day's layout has more inset padding around cards, so fingers consistently landed on inner card content where touch-action defaults to <code>auto</code>. Fixed for codebase consistency and to prevent future regression if the layout structure changes.</li>
+      <li><strong>Behaviour summary after fix:</strong> Desktop mouse drag with 5 px distance threshold (unchanged) · Mobile tap opens the card's normal action (unchanged) · Mobile quick vertical swipe on a card scrolls the page (fixed) · Mobile long-press 150 ms then drag reorders (unchanged) · Small dedicated drag handles like the <code>GripVertical</code> icon on section reorder still use <code>touch-action: none</code> because they're not large enough to interfere with scroll.</li>
+      <li><strong>SOP Section 9</strong> gained a new maintenance trigger row capturing the full two-part diagnosis and remedy, with file/line references so future regressions can be tracked down in minutes rather than hours.</li>
+    </ul>
+  </div>
+
 </div>
 
 <div class="callout green">
@@ -1429,7 +1443,7 @@
 <br/><br/>
 <hr style="border:none;border-top:2px solid #e2e8f0;margin:32px 0 16px;"/>
 <p style="text-align:center;color:#94a3b8;font-size:12px;">
-  CareSync v1.8.1 &nbsp;·&nbsp; CIMA 130 — Introduction to AI &nbsp;·&nbsp; May 2026<br/>
+  CareSync v1.8.2 &nbsp;·&nbsp; CIMA 130 — Introduction to AI &nbsp;·&nbsp; May 2026<br/>
   GitHub: <a href="https://github.com/ericmiaoai/caresync">github.com/ericmiaoai/caresync</a>
   &nbsp;·&nbsp;
   Live: <a href="https://caresync.ericmiao-ai.workers.dev">caresync.ericmiao-ai.workers.dev</a>

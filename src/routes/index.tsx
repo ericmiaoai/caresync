@@ -13,7 +13,7 @@ import { useState, useMemo, useEffect } from "react";
 import {
   DndContext,
   closestCenter,
-  PointerSensor,
+  MouseSensor,
   TouchSensor,
   useSensor,
   useSensors,
@@ -373,7 +373,11 @@ function SortableTaskCard({
         transform:   CSS.Transform.toString(transform),
         transition,
         opacity:     isDragging ? 0.5 : 1,
-        touchAction: "none",
+        // "manipulation" allows the browser to handle scroll and tap on the
+        // card normally; long-press still initiates drag via TouchSensor.
+        // Matches the Calendar fix — keeps the DnD pattern consistent across
+        // routes and pre-empts any layout-change regression. See SOP Section 9.
+        touchAction: "manipulation",
       }}
     >
       <TaskCard
@@ -554,11 +558,11 @@ function MyDay() {
 
   // DnD sensors — separate instances for section vs. task reordering
   const sectionSensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(MouseSensor, { activationConstraint: { distance: 8 } }),
     useSensor(TouchSensor,   { activationConstraint: { delay: 250, tolerance: 8 } }),
   );
   const taskSensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
     useSensor(TouchSensor,   { activationConstraint: { delay: 150, tolerance: 5 } }),
   );
 
