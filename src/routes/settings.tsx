@@ -268,6 +268,16 @@ function SettingsPage() {
         return;
       }
 
+      // 429 = rate limit exceeded
+      if (res.status === 429) {
+        toast.error("Too many attempts", {
+          description: "Please wait an hour before trying again.",
+        });
+        setDeleteLoading(false);
+        setDeleteOpen(false);
+        return;
+      }
+
       if (!res.ok) {
         const { error } = await res.json().catch(() => ({ error: "Unknown error" }));
         throw new Error(error ?? "Deletion failed");

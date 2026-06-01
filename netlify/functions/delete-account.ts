@@ -20,6 +20,24 @@ const SUPABASE_ANON_KEY         = process.env.SUPABASE_ANON_KEY!;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const APP_URL                   = process.env.APP_URL!;
 
+// ---------------------------------------------------------------------------
+// In-memory rate limiter — 5 attempts per 60-minute window per user ID.
+// Resets on cold start (acceptable — this is defense-in-depth on top of the
+// existing password confirmation + JWT verification, not the primary control).
+// ---------------------------------------------------------------------------
+const RATE_LIMIT_MAX    = 5;
+const RATE_LIMIT_WINDOW = 60 * 60 * 1000; // 60 minutes in ms
+const attemptLog        = new Map<string, number[]>();
+
+function isRateLimited(userId: string): boolean {
+  const now      = Date.now();
+  const cutoff   = now - RATE_LIMIT_WINDOW;
+  const attempts = (attemptLog.get(userId) ?? []).filter((t) => t > cutoff);
+  if (attempts.length >= RATE_LIMIT_MAX) return true;
+  attemptLog.set(userId, [...attempts, now]);
+  return false;
+}
+
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !SUPABASE_SERVICE_ROLE_KEY || !APP_URL) {
   throw new Error(
     "[delete-account] Missing required environment variables. " +
@@ -72,12 +90,24 @@ export const handler: Handler = async (event: HandlerEvent) => {
     };
   }
 
-  // ── 2. Build admin client (bypasses RLS for ownership checks + deletion) ──
+  // ── 2. Rate limit check ────────────────────────────────────────────────────
+  if (isRateLimited(user.id)) {
+    return {
+      statusCode: 429,
+      headers: { ...CORS_HEADERS, "Retry-After": "3600" },
+      body: JSON.stringify({
+        error: "rate_limited",
+        message: "Too many deletion attempts. Please wait an hour and try again.",
+      }),
+    };
+  }
+
+  // ── 3. Build admin client (bypasses RLS for ownership checks + deletion) ──
   const adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 
-  // ── 3. Inspect every circle this user belongs to (single pass) ───────────
+  // ── 4. Inspect every circle this user belongs to (single pass) ───────────
   // We need three pieces of info per circle:
   //   • blocking?         user is sole Admin AND other members exist → 409
   //   • soleMemberCircle? user is the only member → mark for cleanup deletion
@@ -155,7 +185,7 @@ export const handler: Handler = async (event: HandlerEvent) => {
     };
   }
 
-  // ── 4. Clean up sole-member orphan circles ──────────────────────────────
+  // ── 5. Clean up sole-member orphan circles ──────────────────────────────
   // Delete circles where the user is the only member. CASCADE on
   // care_circles → tasks, calendar_events, broadcast_updates, avs_documents,
   // patients, and care_circle_members will wipe all dependent rows.
@@ -175,7 +205,7 @@ export const handler: Handler = async (event: HandlerEvent) => {
     }
   }
 
-  // ── 5. Delete the user via admin API ─────────────────────────────────────
+  // ── 6. Delete the user via admin API ─────────────────────────────────────
   const { error: deleteError } = await adminClient.auth.admin.deleteUser(user.id);
 
   if (deleteError) {

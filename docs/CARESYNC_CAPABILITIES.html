@@ -315,7 +315,7 @@
 <div class="cover">
   <div class="cover-logo"></div>
   <div>
-    <h1>CareSync <span class="cover-badge">v1.8.2</span></h1>
+    <h1>CareSync <span class="cover-badge">v1.8.3</span></h1>
     <div class="cover-meta">
       Capabilities &amp; Technical Overview &nbsp;·&nbsp;
       CIMA 130 — Introduction to AI &nbsp;·&nbsp; May 2026
@@ -779,7 +779,7 @@
   </tr>
   <tr>
     <td><strong>Account deletion</strong></td>
-    <td>Available in the Danger Zone of Settings. Requires the user to enter their current password to confirm before the delete button activates, preventing accidental deletion. Sole admins of a circle with other members are blocked until they transfer the Admin role. All data cannot be recovered once deleted.</td>
+    <td>Available in the Danger Zone of Settings. Requires the user to enter their current password to confirm before the delete button activates, preventing accidental deletion. Sole admins of a circle with other members are blocked until they transfer the Admin role. All data cannot be recovered once deleted. Server-side rate limited to 5 attempts per 60-minute window per user — returns HTTP 429 with a user-facing "Too many attempts" toast if exceeded.</td>
   </tr>
   <tr>
     <td><strong>Privacy Policy</strong></td>
@@ -1431,6 +1431,20 @@
     </ul>
   </div>
 
+  <div class="tl-item">
+    <div class="tl-dot green"></div>
+    <div class="tl-date">June 1, 2026</div>
+    <div class="tl-phase green">Phase 11.3 — Delete Account Rate Limiting</div>
+    <div class="tl-title">Server-Side Rate Limit on Account Deletion Endpoint</div>
+    <ul class="tl-list">
+      <li><strong>Gap addressed:</strong> the <code>delete-account</code> Netlify function had no rate limiting, unlike <code>process-avs</code> which enforces a daily scan cap. A compromised session token or frontend bug could trigger repeated deletion attempts with no server-side friction.</li>
+      <li><strong>Implementation:</strong> in-memory rate limiter (module-level <code>Map&lt;userId, number[]&gt;</code>) in <code>netlify/functions/delete-account.ts</code>. Allows 5 attempts per 60-minute rolling window per user ID. On the 6th attempt within the window, returns HTTP 429 with a <code>Retry-After: 3600</code> header and <code>error: "rate_limited"</code> body. Resets on Netlify cold start — acceptable because this is defense-in-depth on top of existing password confirmation and JWT verification, not the primary control.</li>
+      <li><strong>Frontend:</strong> <code>settings.tsx</code> now handles 429 explicitly — shows a specific "Too many attempts — Please wait an hour before trying again." toast and closes the dialog cleanly, instead of falling through to the generic error handler.</li>
+      <li><strong>No functionality impact:</strong> a legitimate user calling the endpoint once (the only realistic use case) will never approach the limit. The rate check runs after JWT verification so the user ID is always known before the counter is checked or incremented.</li>
+      <li><strong>No Gemini API involvement:</strong> <code>delete-account</code> is entirely independent of the Gemini/AVS pipeline — rate limiting here has zero impact on Gemini costs or scan quotas.</li>
+    </ul>
+  </div>
+
 </div>
 
 <div class="callout green">
@@ -1443,7 +1457,7 @@
 <br/><br/>
 <hr style="border:none;border-top:2px solid #e2e8f0;margin:32px 0 16px;"/>
 <p style="text-align:center;color:#94a3b8;font-size:12px;">
-  CareSync v1.8.2 &nbsp;·&nbsp; CIMA 130 — Introduction to AI &nbsp;·&nbsp; May 2026<br/>
+  CareSync v1.8.3 &nbsp;·&nbsp; CIMA 130 — Introduction to AI &nbsp;·&nbsp; June 2026<br/>
   GitHub: <a href="https://github.com/ericmiaoai/caresync">github.com/ericmiaoai/caresync</a>
   &nbsp;·&nbsp;
   Live: <a href="https://caresync.ericmiao-ai.workers.dev">caresync.ericmiao-ai.workers.dev</a>
