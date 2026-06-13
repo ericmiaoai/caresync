@@ -12,7 +12,7 @@ import { useNewMemberAlert } from "@/hooks/useNewMemberAlert";
 import { useVisualViewport } from "@/hooks/useVisualViewport";
 import { useRealtimeSyncHealth } from "@/lib/realtimeSyncStore";
 import { useAnyHookLoading } from "@/lib/routeReadiness";
-import { applyTheme, getStoredTheme } from "@/lib/theme";
+import { applyTheme, getStoredTheme, normalizeTheme } from "@/lib/theme";
 import { usePreferences } from "@/hooks/usePreferences";
 import {
   DropdownMenu,
@@ -289,10 +289,15 @@ function RootComponent() {
 
   // Once prefs load from Supabase, apply the saved theme — this is what
   // keeps the theme consistent across devices
-  const { prefs, isLoaded: prefsLoaded } = usePreferences(user?.id);
+  const { prefs, isLoaded: prefsLoaded, updatePrefs } = usePreferences(user?.id);
   useEffect(() => {
-    if (prefsLoaded && prefs.theme) applyTheme(prefs.theme);
-  }, [prefsLoaded, prefs.theme]);
+    if (!prefsLoaded || !prefs.theme) return;
+    const normalized = normalizeTheme(prefs.theme);
+    if (!normalized) return;
+    applyTheme(normalized);
+    // Self-heal Supabase records still holding a pre-rename theme id
+    if (normalized !== prefs.theme) updatePrefs({ theme: normalized });
+  }, [prefsLoaded, prefs.theme, updatePrefs]);
   useNewMemberAlert(careCircleId, role);
   const navigate    = useNavigate();
   const routerState = useRouterState();

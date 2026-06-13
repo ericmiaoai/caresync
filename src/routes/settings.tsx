@@ -84,9 +84,9 @@ const SWATCH_STYLE: Record<Theme, React.CSSProperties> = {
   black:            { background: "#0a0a0b" },
   gray:             { background: "radial-gradient(ellipse at 22% 20%, #3a3d47 0%, #22242c 50%, #111318 100%)" },
   light:            { background: "#f5f5f6" },
-  blue:             { background: "linear-gradient(175deg, #3d6dd0 0%, #1e3a9e 45%, #0d1462 100%)" },
+  ocean:            { background: "linear-gradient(0deg, #C9D3F4 0%, #E7EAFB 50%, #F8F6F0 100%)" },
   sandstone:        { background: "radial-gradient(ellipse at 90% 5%, #5a4e3a 0%, #2e2820 40%, #141210 100%)" },
-  indigo:           { background: "radial-gradient(ellipse at 20% 0%, #3d1f6e 0%, #1a0d3a 50%, #0a0514 100%)" },
+  sunset:           { background: "linear-gradient(0deg, #b298bc 0%, #dcc3cb 50%, #f6dfdf 100%)" },
   granite:          { background: "radial-gradient(ellipse at 96% 0%, #4a5a6e 0%, #252e38 20%, #151c24 50%, #080c10 100%)" },
 };
 
@@ -96,7 +96,7 @@ function ThemeSwatch({
   id: Theme; label: string; theme: Theme; setTheme: (t: Theme) => void;
 }) {
   const isActive = theme === id;
-  const isLight  = id === "light";
+  const isLight  = id === "light" || id === "ocean" || id === "sunset";
 
   return (
     <button
@@ -149,7 +149,7 @@ function SettingsRow({
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-accent/50 active:bg-accent"
+      className="flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-accent/50 active:bg-accent focus-visible:outline-none"
     >
       <span className={cn("shrink-0", destructive ? "text-destructive" : "text-muted-foreground")}>
         {icon}
@@ -603,7 +603,7 @@ function SettingsPage() {
           <p className="mb-1.5 px-1 text-sm font-semibold uppercase tracking-wider" style={{ color: "oklch(0.62 0.13 74)" }}>
             Care Recipient
           </p>
-          <div className="mb-6 overflow-hidden rounded-xl border border-border bg-card divide-y divide-border">
+          <div className="mb-6 overflow-hidden rounded-xl border border-border bg-card divide-y divide-border focus-within:ring-2 focus-within:ring-ring">
             {/* Patient identity row — admin-only edit; info toast for other roles */}
             <button
               type="button"
@@ -611,7 +611,7 @@ function SettingsPage() {
                 if (canEditPatient) setPatientEditOpen(true);
                 else toast.info("Only Admins can edit Care Recipient details.");
               }}
-              className="flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-accent/50 active:bg-accent"
+              className="flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-accent/50 active:bg-accent focus-visible:outline-none"
             >
               {patient.avatar_url ? (
                 <img
@@ -653,7 +653,7 @@ function SettingsPage() {
       <p className="mb-1.5 px-1 text-sm font-semibold uppercase tracking-wider" style={{ color: "oklch(0.62 0.13 74)" }}>
         Care Circle
       </p>
-      <div className="mb-6 overflow-hidden rounded-xl border border-border bg-card">
+      <div className="mb-6 overflow-hidden rounded-xl border border-border bg-card focus-within:ring-2 focus-within:ring-ring">
         <SettingsRow
           icon={<Users className="h-4 w-4" />}
           label={careCircleName ?? "Members"}
@@ -666,7 +666,7 @@ function SettingsPage() {
       <p className="mb-1.5 px-1 text-sm font-semibold uppercase tracking-wider" style={{ color: "oklch(0.62 0.13 74)" }}>
         Preferences
       </p>
-      <div className="mb-6 overflow-hidden rounded-xl border border-border bg-card">
+      <div className="mb-6 overflow-hidden rounded-xl border border-border bg-card focus-within:ring-2 focus-within:ring-ring">
         <SettingsRow
           icon={<Palette className="h-4 w-4" />}
           label="Appearance"
@@ -679,7 +679,7 @@ function SettingsPage() {
       <p className="mb-1.5 px-1 text-sm font-semibold uppercase tracking-wider" style={{ color: "oklch(0.62 0.13 74)" }}>
         Account
       </p>
-      <div className="overflow-hidden rounded-xl border border-white/10 bg-card/85 backdrop-blur-xl">
+      <div className="overflow-hidden rounded-xl border border-white/10 bg-card/85 backdrop-blur-xl focus-within:ring-2 focus-within:ring-ring">
         <SettingsRow
           icon={<UserCircle className="h-4 w-4" />}
           label="Edit Profile"
@@ -703,7 +703,7 @@ function SettingsPage() {
       <p className="mb-1.5 mt-6 px-1 text-sm font-semibold uppercase tracking-wider" style={{ color: "oklch(0.62 0.13 74)" }}>
         About
       </p>
-      <div className="overflow-hidden rounded-xl border border-border bg-card">
+      <div className="overflow-hidden rounded-xl border border-border bg-card focus-within:ring-2 focus-within:ring-ring">
         <SettingsRow
           icon={<ShieldCheck className="h-4 w-4" />}
           label="Privacy Policy"
