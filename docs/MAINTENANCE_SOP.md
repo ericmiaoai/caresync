@@ -104,10 +104,17 @@ npm audit fix
 | `@google/generative-ai` | Gemini SDK — new models may require newer SDK versions |
 | `@supabase/supabase-js` | Auth and database client — security patches are critical |
 | `@netlify/functions` | Serverless function types — update when deploying new functions |
+| `@tanstack/react-start` | Core framework — security advisories (e.g. GHSA-9m65-766c-r333) require prompt patching |
+| `wrangler` | Cloudflare deploy tool — update via `npm install -D wrangler@latest`; run `npx wrangler logout && npx wrangler login` if auth errors appear after update |
 
 ### After updating
 Always run `npx tsc --noEmit` to verify no TypeScript errors were introduced,
 then test Scan AVS end-to-end before deploying.
+
+### npm audit fix — safe pattern
+Run `npm audit fix --dry-run` first to preview changes. Proceed with `npm audit fix` (no `--force`) only after reviewing the dry-run output. Always run `npm run build` immediately after to verify the build still compiles. Do not use `--force` unless you have reviewed each affected package individually — it can introduce breaking changes.
+
+**June 1, 2026 audit fix:** resolved 10 moderate vulnerabilities — TanStack Start server-function deserialization (GHSA-9m65-766c-r333), ws uninitialized memory disclosure (GHSA-58qx-3vcg-4xpx), and brace-expansion DoS (GHSA-jxxr-4gwj-5jf2). Key upgrades: `@tanstack/react-start 1.167.39 → 1.168.18`, `ws 8.18.0 → 8.20.1`, `@cloudflare/vite-plugin 1.32.2 → 1.39.1`, `unplugin 2.3.11 → 3.0.0` (major, build-tool only).
 
 ---
 
