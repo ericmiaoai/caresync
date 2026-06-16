@@ -311,14 +311,14 @@ CareSync uses a split deployment model:
 | Layer | Platform | URL | What it does |
 |---|---|---|---|
 | Frontend + SSR | Cloudflare Workers | `caresync.*.workers.dev` | Serves the React app |
-| Serverless functions | Netlify Functions | `caresync-ericmiao3.netlify.app` | `process-avs` (Gemini) + `delete-account` + `health` |
+| Serverless functions | Netlify Functions | `caresync-ericmiao5.netlify.app` | `process-avs` (Gemini) + `delete-account` + `health` |
 | Database + Auth | Supabase | `*.supabase.co` | Stores all app data |
 
 ### Health check
 The Netlify functions layer exposes a public liveness endpoint:
 
 ```
-GET https://caresync-ericmiao3.netlify.app/.netlify/functions/health
+GET https://caresync-ericmiao5.netlify.app/.netlify/functions/health
 ```
 
 Returns `{ "status": "ok", "service": "caresync-netlify", "timestamp": "..." }` with HTTP 200 while healthy. No authentication required. Connect this URL to an external monitor (e.g. UptimeRobot — free tier, 5-minute polling) to receive alerts if the functions layer goes down.
